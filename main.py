@@ -1,5 +1,5 @@
 # git add main.py
-# git commit -m "first commit"
+# git commit -m "fourth commit"
 # git push origin master
 
 # git pull origin master (기존 commit 해놓은 코드 가져오기)
@@ -32,6 +32,10 @@ def change_page(goto_page):  # changing page function
 
 def bubble_sort(given_list):  # bubble sort function
     global page
+    if given_list == 'Type here':
+        sort_text.text = "Click on the button 'Type here' and type a number set"
+        page = 'Sort Result'
+        return
     try:
         given_list = [int(x) for x in given_list.split(',')]
     except ValueError:
@@ -74,6 +78,10 @@ def quick_sort_function(given_list):
 
 def quick_sort(given_list):
     global page
+    if given_list == 'Type here':
+        sort_text.text = "Click on the button 'Type here' and type a number set"
+        page = 'Sort Result'
+        return
     try:
         given_list = [int(x) for x in given_list.split(',')]
     except ValueError:
@@ -100,6 +108,10 @@ def quick_sort(given_list):
 
 def counting_sort(given_list):  # [4, 1, -2, 4, 0]
     global page
+    if given_list == 'Type here':
+        sort_text.text = "Click on the button 'Type here' and type a number set"
+        page = 'Sort Result'
+        return
     try:
         given_list = [int(x) for x in given_list.split(',')]
     except ValueError:
@@ -111,8 +123,8 @@ def counting_sort(given_list):  # [4, 1, -2, 4, 0]
     M = max(given_list)  # 4
     try:
         index_list = list(range(m, M+1))  # [-2, -1, 0, 1, 2, 3, 4]
-    except:
-        sort_text.text = 'Error - given number is too big to\nbe sorted using counting sort method. '
+    except:  # if the number is too big an error occurs.
+        sort_text.text = 'Error - given set is too big to be\nsorted using counting sort method.\nTry another sorting method.'
         page = 'Sort Result'
         return
     result_list = []
@@ -175,7 +187,7 @@ Quadratic_Button = Page_Button(0.3, 0, 0.2, color.orange, 'Quadratic\nEquations'
 Sort_Button = Page_Button(0, 0, 0.2, color.dark_gray, 'Sorting\nAlgorithm', 'Sorting Algorithm',
                           ['Home'])
 Game_Button = Page_Button(0.3, 0, 0.2, color.red, 'Clicking Game', 'Clicking Game', ['Home'])
-Input_number = InputField(world_position=(0, 15, 0), placeholder='Type here', enabled=True)
+Input_number = InputField(world_position=(0, 15, 0), enabled=True)
 Bubble_Sort_Button = Function_Button(-0.25, 0, 0.15, color.gray, 'Bubble\nSort', 'Sorting Algorithm',
                                      Input_number.text, bubble_sort)
 Quick_Sort_Button = Function_Button(0, 0, 0.15, color.gray, 'Quick\nSort', 'Sorting Algorithm',
@@ -233,7 +245,7 @@ def update():  # repeats every frame
         Input_number.world_position = (0, 15, 0)
 
     if page not in ['Sorting Algorithm', 'Sort Result']:
-        Input_number.text = '4, 1, -2, 4, 0'
+        Input_number.text = 'Type here'
 
 
 app.run()  # needed to run the program
