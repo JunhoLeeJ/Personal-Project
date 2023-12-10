@@ -1,3 +1,10 @@
+# git add main.py
+# git commit -m "first commit"
+# git push origin master
+
+# git pull origin master (기존 commit 해놓은 코드 가져오기)
+
+
 from ursina import *  # meaning that you import Ursina and you don't have to type Ursina.name of the function every time
 # you want to use a function in Ursina. e.g. window.size = (1580, 720)
 import random  # meaning that you import an internal library named random and you have to type random.name of the
@@ -16,7 +23,6 @@ sort_explanation_text = Text(text='1. Type in any sets of integers, and click an
                                   'sort the numbers in ascending order.          \n3. Type a comma in between numbers, and '
                                   "don't put in letters.\nEx) 4, 1, -2, 4, 0",
                              origin=(0, 0), y=15, scale=1.15)
-time_text = Text(text='', origin=(0, 0), y=15, scale=2)
 
 
 def change_page(goto_page):  # changing page function
@@ -32,7 +38,6 @@ def bubble_sort(given_list):  # bubble sort function
         sort_text.text = 'Error'
         page = 'Sort Result'
         return
-    start = time.time()
     l = len(given_list) - 1
     for i in range(l):
         for j in range(l):
@@ -41,9 +46,7 @@ def bubble_sort(given_list):  # bubble sort function
                 given_list[j] = given_list[j + 1]
                 given_list[j + 1] = temp
 
-    elapsed = time.time()-start
     sort_text.text = 'Result: ' + str(given_list)
-    time_text.text = f'Time taken: {elapsed} seconds'
     page = 'Sort Result'
 
 
@@ -106,7 +109,12 @@ def counting_sort(given_list):  # [4, 1, -2, 4, 0]
 
     m = min(given_list)  # -2
     M = max(given_list)  # 4
-    index_list = list(range(m, M+1))  # [-2, -1, 0, 1, 2, 3, 4]
+    try:
+        index_list = list(range(m, M+1))  # [-2, -1, 0, 1, 2, 3, 4]
+    except:
+        sort_text.text = 'Error - given number is too big to\nbe sorted using counting sort method. '
+        page = 'Sort Result'
+        return
     result_list = []
     n_list = [0]*len(index_list)  # [0, 0, 0, 0, 0, 0, 0]  >>  [1, 0, 1, 1, 0, 0, 2]
     for n in given_list:  # 4, 1, -2, 4, 0
@@ -205,17 +213,14 @@ def update():  # repeats every frame
         Sort_Button.button.y = 0.4
         Sort_Button.button.scale = 0.15
         sort_text.y = -0.3
-        time_text.y = -0.2
     elif page == 'Home':
         Sort_Button.button.x = Sort_Button.x
         Sort_Button.button.y = Sort_Button.y
         Sort_Button.button.scale = Sort_Button.size
         sort_text.y = 15
-        time_text.y = 15
     else:
         Sort_Button.actions()
         sort_text.y = 15
-        time_text.y = 15
     
     if page == 'Sorting Algorithm':
         sort_explanation_text.y = 0.25
