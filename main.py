@@ -1,5 +1,5 @@
 # git add main.py
-# git commit -m "fourth commit"
+# git commit -m "fifth commit"
 # git push origin master
 
 # git pull origin master (기존 commit 해놓은 코드 가져오기)
@@ -13,16 +13,16 @@ import random  # meaning that you import an internal library named random and yo
 app = Ursina()
 
 window.borderless = False  # lets the user move the window
-window.color = color.black  # makes the background color black
+window.color = color.dark_gray  # makes the background color black
 window.size = (1080, 720)
 
 page = 'Home'  # page variable is set as 'Home'
 page_text = Text(text=page, origin=(0, 0), y=0.4, scale=2)
-sort_text = Text(text='', origin=(0, 0), y=15, scale=2)
+sort_text = Text(text='', origin=(0, 0), y=15, wordwrap=10, scale=1)
 sort_explanation_text = Text(text='1. Type in any sets of integers, and click any sorting method.     \n2. The program will '
                                   'sort the numbers in ascending order.          \n3. Type a comma in between numbers, and '
                                   "don't put in letters.\nEx) 4, 1, -2, 4, 0",
-                             origin=(0, 0), y=15, scale=1.15)
+                             origin=(0, 0), y=15)
 
 
 def change_page(goto_page):  # changing page function
@@ -41,6 +41,7 @@ def bubble_sort(given_list):  # bubble sort function
     except ValueError:
         sort_text.text = 'Error'
         page = 'Sort Result'
+        Input_number.text = 'Type here'
         return
     l = len(given_list) - 1
     for i in range(l):
@@ -54,26 +55,16 @@ def bubble_sort(given_list):  # bubble sort function
     page = 'Sort Result'
 
 
-def quick_sort_function(given_list):
-    pivot = random.choice(given_list)
-    n = 0
-    small_list = []
-    pivot_list = [pivot]
-    big_list = []
-    for i in given_list:
-        if i < pivot:
-            small_list.append(i)
-        elif i == pivot:
-            n += 1
-        else:
-            big_list.append(i)
+def quick_sort_func(given_list):
+    if len(given_list) <= 1:
+        return given_list
 
-    pivot_list.append(n)
-    if len(small_list) == 1:
-        small_list = small_list[0]
-    if len(big_list) == 1:
-        big_list = big_list[0]
-    return small_list, pivot_list, big_list
+    pivot = random.choice(given_list)
+    small = [x for x in given_list if x < pivot]
+    equal = [x for x in given_list if x == pivot]
+    big = [x for x in given_list if x > pivot]
+
+    return quick_sort_func(small) + equal + quick_sort_func(big)
 
 
 def quick_sort(given_list):
@@ -87,20 +78,10 @@ def quick_sort(given_list):
     except ValueError:
         sort_text.text = 'Error'
         page = 'Sort Result'
+        Input_number.text = 'Type here'
         return
-    result_list = [given_list]
-    while len(result_list) < len(given_list):
-        for i in result_list:
-            if isinstance(i, list):
-                (small, pivot, big) = quick_sort_function(i)
-                ind = result_list.index(i)
-                result_list.pop(ind)
-                if big:
-                    result_list.insert(ind, big)
-                for j in range(pivot[1]):
-                    result_list.insert(ind, pivot[0])
-                if small:
-                    result_list.insert(ind, small)
+
+    result_list = quick_sort_func(given_list)
 
     sort_text.text = 'Result: ' + str(result_list)
     page = 'Sort Result'
@@ -117,16 +98,16 @@ def counting_sort(given_list):  # [4, 1, -2, 4, 0]
     except ValueError:
         sort_text.text = 'Error'
         page = 'Sort Result'
+        Input_number.text = 'Type here'
         return
 
     m = min(given_list)  # -2
     M = max(given_list)  # 4
-    try:
-        index_list = list(range(m, M+1))  # [-2, -1, 0, 1, 2, 3, 4]
-    except:  # if the number is too big an error occurs.
-        sort_text.text = 'Error - given set is too big to be\nsorted using counting sort method.\nTry another sorting method.'
+    if M-m >= 5000000:
+        sort_text.text = 'Error - given range of numbers might be too big to be\nsorted using counting sort method.\nTry another sorting method.'
         page = 'Sort Result'
         return
+    index_list = list(range(m, M+1))  # [-2, -1, 0, 1, 2, 3, 4]
     result_list = []
     n_list = [0]*len(index_list)  # [0, 0, 0, 0, 0, 0, 0]  >>  [1, 0, 1, 1, 0, 0, 2]
     for n in given_list:  # 4, 1, -2, 4, 0
@@ -187,12 +168,13 @@ Quadratic_Button = Page_Button(0.3, 0, 0.2, color.orange, 'Quadratic\nEquations'
 Sort_Button = Page_Button(0, 0, 0.2, color.dark_gray, 'Sorting\nAlgorithm', 'Sorting Algorithm',
                           ['Home'])
 Game_Button = Page_Button(0.3, 0, 0.2, color.red, 'Clicking Game', 'Clicking Game', ['Home'])
-Input_number = InputField(world_position=(0, 15, 0), enabled=True)
-Bubble_Sort_Button = Function_Button(-0.25, 0, 0.15, color.gray, 'Bubble\nSort', 'Sorting Algorithm',
+
+Input_number = InputField(world_position=(15, 15, 15), enabled=True, max_lines=5, character_limit=100000)
+Bubble_Sort_Button = Function_Button(-0.25, 0.05, 0.15, color.gray, 'Bubble\nSort', 'Sorting Algorithm',
                                      Input_number.text, bubble_sort)
-Quick_Sort_Button = Function_Button(0, 0, 0.15, color.gray, 'Quick\nSort', 'Sorting Algorithm',
+Quick_Sort_Button = Function_Button(0, 0.05, 0.15, color.gray, 'Quick\nSort', 'Sorting Algorithm',
                                     Input_number.text, quick_sort)
-Counting_Sort_Button = Function_Button(0.25, 0, 0.15, color.gray, 'Counting\nSort', 'Sorting Algorithm',
+Counting_Sort_Button = Function_Button(0.25, 0.05, 0.15, color.gray, 'Counting\nSort', 'Sorting Algorithm',
                                        Input_number.text, counting_sort)
 
 
@@ -224,7 +206,7 @@ def update():  # repeats every frame
         Sort_Button.button.x = -0.4
         Sort_Button.button.y = 0.4
         Sort_Button.button.scale = 0.15
-        sort_text.y = -0.3
+        sort_text.y = 0
     elif page == 'Home':
         Sort_Button.button.x = Sort_Button.x
         Sort_Button.button.y = Sort_Button.y
@@ -236,13 +218,13 @@ def update():  # repeats every frame
     
     if page == 'Sorting Algorithm':
         sort_explanation_text.y = 0.25
-        Input_number.world_position = (0, 2.5, 0)
+        Input_number.world_position = (0, -2.5, 0)
         Bubble_Sort_Button.input = Input_number.text
         Quick_Sort_Button.input = Input_number.text
         Counting_Sort_Button.input = Input_number.text
     else:
         sort_explanation_text.y = 15
-        Input_number.world_position = (0, 15, 0)
+        Input_number.world_position = (15, 15, 15)
 
     if page not in ['Sorting Algorithm', 'Sort Result']:
         Input_number.text = 'Type here'
