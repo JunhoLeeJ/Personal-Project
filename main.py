@@ -1,5 +1,5 @@
 # git add main.py
-# git commit -m "seventh commit"
+# git commit -m "eighth commit"
 # git push origin master
 
 # git pull origin master (기존 commit 해놓은 코드 가져오기)
@@ -9,6 +9,8 @@ from ursina import *  # meaning that you import Ursina and you don't have to typ
 
 import random  # meaning that you import an internal library named random, and you have to type random.name of the
 # function every time to use the function. e.g. random.randint(1, 15)
+
+import time
 
 app = Ursina()
 
@@ -36,6 +38,15 @@ simultaneous_equation_equation_text = Text(text='       x +        y =        \n
 
 quadratic_equation_text = Text(text='', origin=(0, 0), y=15, scale=1)  # answer of quadratic equation
 quadratic_equation_equation_text = Text(text='       x² +        x =        ', origin=(0, 0), y=15, scale=2)
+
+click_number = 0  # how many clicks
+click_number_text = Text(text='0 clicks', origin=(0, 0), y=15, scale=1.2)  # text of how many clicks
+click_time_text = Text(text='5 seconds', origin=(0, 0), y=15, scale=1.2)  # time left
+click_result_text = Text(text='', origin=(0, 0), y=15, scale=1.2)  # final text + clicks + comment
+clicking_game_explanation_text = Text(text='How many times can you click the button in 5 seconds?', origin=(0, 0), y=15, scale=1.5)
+finishing_time = 5
+
+levels = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5', 'Level 6', 'Level 7', 'Level 8', 'Level 9', 'Level 10']
 
 
 def change_page(goto_page):  # changing page function
@@ -284,6 +295,35 @@ def quadratic_equation(given):  # rounded to 2dp
     return  # two solutions
 
 
+def click_add_1():
+    global click_number
+    click_number = click_number + 1
+    return click_number
+
+
+def clicking_game(lvl):
+    global click_number
+    global finishing_time
+    global page
+    if finishing_time != 5:  # when clicking started
+        if time.time() <= finishing_time:
+            click_time_text.text = str(make_number_2dp(finishing_time - time.time())) + ' seconds'
+            click_number_text.text = str(click_number) + ' clicks'
+        else:
+            page = 'Result'
+            if click_number >= lvl:
+                click_result_text.text = (f'Congratulations! You clicked the button {click_number} times in 5 seconds! '
+                                          f'(aim: {lvl} times)')
+                finishing_time = 5
+                Clicking_Game_Click_Button_list[int((lvl - 20) / 10 - 1)].button.color = color.green
+                Clicking_Game_Click_Button_list[int((lvl - 20) / 10 - 1)].button.text_color = color.black
+
+            else:
+                click_result_text.text = (f'You clicked the button {click_number} times, which is {lvl - click_number} times '
+                                          f'less than your aim ({lvl} times) :(')
+                finishing_time = 5
+
+
 class Normal_Button:
     def __init__(self, x, y, size, color, text, page_condition):  # defining everything inside this button class
         self.x = x
@@ -318,8 +358,8 @@ class Function_Button(Normal_Button):
 
 
 Home_Button = Page_Button(-0.6, 0.4, 0.15, color.blue, 'Home', 'Home',
-                          ['Calculator', 'Math Problem Solver', 'Simultaneous Equations',
-                           'Quadratic Equations', 'Sorting Algorithm', 'Clicking Game', 'Sort Result'])
+                          ['Calculator', 'Math Problem Solver', 'Simultaneous Equations', 'Quadratic Equations',
+                           'Sorting Algorithm', 'Clicking Game', 'Sort Result', 'Result'] + levels)
 Math_Button = Page_Button(-0.3, 0, 0.2, color.orange, 'Math Problem\nSolver',
                           'Math Problem Solver', ['Home', 'Calculator', 'Simultaneous Equations',
                                                   'Quadratic Equations'])
@@ -331,8 +371,8 @@ Quadratic_Button = Page_Button(0.3, 0, 0.2, color.orange, 'Quadratic\nEquations'
                                'Quadratic Equations', ['Math Problem Solver'])
 Sort_Button = Page_Button(0, 0, 0.2, color.gray, 'Sorting\nAlgorithm', 'Sorting Algorithm',
                           ['Home'])
-Game_Button = Page_Button(0.3, 0, 0.2, color.red, 'Clicking Game', 'Clicking Game',
-                          ['Home'])
+Clicking_Game_Button = Page_Button(0.3, 0, 0.2, color.red, 'Clicking Game', 'Clicking Game',
+                          ['Result'] + levels)
 
 Sort_input_number = InputField(world_position=(15, 15, 15), enabled=True, max_lines=5, character_limit=100000,
                                limit_content_to='1234567890- ,')
@@ -348,6 +388,7 @@ Calculator_x_input_number = InputField(world_position=(15, 15, 15,), enabled=Tru
                                        limit_content_to='1234567890-', scale=0.1)
 Calculator_y_input_number = InputField(world_position=(15, 15, 15,), enabled=True, origin_y=-0.1,
                                        limit_content_to='1234567890-', scale=0.1)
+
 
 Calculator_Addition_Button = Function_Button(-0.15, 0.2, 0.075, color.peach, '+', 'Calculator',
                                              '+', calculator_symbol_selection)
@@ -367,6 +408,7 @@ Calculator_Power_Button.button.text_color = color.black
 Calculator_Calculate_Button = Function_Button(0, -0.1, 0.15, color.orange, 'Calculate!\n\n(rounded\nto 2dp)',
                                               'Calculator', (Calculator_x_input_number.text,
                                                              Calculator_y_input_number.text), calculator)
+
 
 Simultaneous_a_input_number = InputField(world_position=(15, 15, 15), enabled=True, origin_y=-0.1,
                                          limit_content_to='1234567890-', scale=0.075)
@@ -388,6 +430,7 @@ Simultaneous_Solve_Button = Function_Button(0, -0.05, 0.20, color.orange, 'Solve
                                              Simultaneous_e_input_number.text, Simultaneous_f_input_number.text),
                                             simultaneous_equation)
 
+
 Quadratic_a_input_number = InputField(world_position=(15, 15, 15), enabled=True, origin_y=0,
                                       limit_content_to='1234567890-', scale=0.075)
 Quadratic_b_input_number = InputField(world_position=(15, 15, 15), enabled=True, origin_y=0,
@@ -398,18 +441,45 @@ Quadratic_c_input_number = InputField(world_position=(15, 15, 15), enabled=True,
 Quadratic_Solve_Button = Function_Button(0, -0.05, 0.2, color.orange, 'Solve for x',
                                          'Quadratic Equations', ('a', 'b', 'c'), quadratic_equation)
 
+Clicking_Game_lvl_1_Button = Page_Button(-0.5, 0, 0.2, color.red, levels[0] + '\n\n30 clicks', levels[0],
+                                         'Clicking Game')
+Clicking_Game_lvl_2_Button = Page_Button(-0.25, 0, 0.2, color.red, levels[1] + '\n\n40 clicks', levels[1],
+                                         'Clicking Game')
+Clicking_Game_lvl_3_Button = Page_Button(0, 0, 0.2, color.red, levels[2] + '\n\n50 clicks', levels[2],
+                                         'Clicking Game')
+Clicking_Game_lvl_4_Button = Page_Button(0.25, 0, 0.2, color.red, levels[3] + '\n\n60 clicks', levels[3],
+                                         'Clicking Game')
+Clicking_Game_lvl_5_Button = Page_Button(0.5, 0, 0.2, color.red, levels[4] + '\n\n70 clicks', levels[4],
+                                         'Clicking Game')
+Clicking_Game_lvl_6_Button = Page_Button(-0.5, -0.3, 0.2, color.red, levels[5] + '\n\n80 clicks', levels[5],
+                                         'Clicking Game')
+Clicking_Game_lvl_7_Button = Page_Button(-0.25, -0.3, 0.2, color.red, levels[6] + '\n\n90 clicks', levels[6],
+                                         'Clicking Game')
+Clicking_Game_lvl_8_Button = Page_Button(0, -0.3, 0.2, color.red, levels[7] + '\n\n100 clicks', levels[7],
+                                         'Clicking Game')
+Clicking_Game_lvl_9_Button = Page_Button(0.25, -0.3, 0.2, color.red, levels[8] + '\n\n110 clicks', levels[8],
+                                         'Clicking Game')
+Clicking_Game_lvl_10_Button = Page_Button(0.5, -0.3, 0.2, color.red, levels[9] + '\n\n120 clicks', levels[9],
+                                          'Clicking Game')
+Clicking_Game_Click_Button_list = [Clicking_Game_lvl_1_Button, Clicking_Game_lvl_2_Button, Clicking_Game_lvl_3_Button,
+                                   Clicking_Game_lvl_4_Button, Clicking_Game_lvl_5_Button, Clicking_Game_lvl_6_Button,
+                                   Clicking_Game_lvl_7_Button, Clicking_Game_lvl_8_Button, Clicking_Game_lvl_9_Button,
+                                   Clicking_Game_lvl_10_Button]
+Clicking_Game_Click_Button = Normal_Button(0, 0, 0.3, color.red, 'Click this Button!', levels)
+
 
 def update():  # repeats every frame
     global page_text
     global page
     global symbol
+    global click_number
+    global finishing_time
     page_text.text = page
     Home_Button.actions()
     Calculator_Button.actions()
     Simultaneous_Button.actions()
     Quadratic_Button.actions()
     Sort_Button.actions()
-    Game_Button.actions()
     Bubble_Sort_Button.actions()
     Quick_Sort_Button.actions()
     Counting_Sort_Button.actions()
@@ -421,6 +491,7 @@ def update():  # repeats every frame
     Calculator_Calculate_Button.actions()
     Simultaneous_Solve_Button.actions()
     Quadratic_Solve_Button.actions()
+    Clicking_Game_Click_Button.actions()
 
     if page == 'Home':
         home_text.y = 0.25
@@ -514,6 +585,51 @@ def update():  # repeats every frame
         Quadratic_a_input_number.world_position = (15, 15, 15)
         Quadratic_b_input_number.world_position = (15, 15, 15)
         Quadratic_c_input_number.world_position = (15, 15, 15)
+
+    if page in ['Result'] + levels:
+        Clicking_Game_Button.button.x = -0.4
+        Clicking_Game_Button.button.y = 0.4
+        Clicking_Game_Button.button.scale = 0.15
+    elif page == 'Home':
+        Clicking_Game_Button.button.x = Clicking_Game_Button.x
+        Clicking_Game_Button.button.y = Clicking_Game_Button.y
+        Clicking_Game_Button.button.scale = Clicking_Game_Button.size
+    else:
+        Clicking_Game_Button.actions()
+
+    if click_number > 0 and finishing_time == 0:
+        finishing_time = time.time()+5  # giving the player 5 seconds right after the click
+
+    if page == 'Clicking Game':
+        clicking_game_explanation_text.y = 0.25
+    else:
+        clicking_game_explanation_text.y = 15
+
+    for button in Clicking_Game_Click_Button_list:
+        button.actions()
+
+    if page in levels:
+        Clicking_Game_Click_Button.button.on_click = click_add_1
+        if click_number > 0 and finishing_time == 5:
+            finishing_time = time.time() + 5  # giving the player 5 seconds right after the click
+
+        click_time_text.y = -0.25
+        click_number_text.y = 0.25
+        for level in levels:
+            if page == level:
+                clicking_game(30 + levels.index(level) * 10)
+
+    else:
+        if page == 'Result':
+            click_result_text.y = 0
+        else:
+            click_result_text.y = 15
+        click_number = 0
+        click_number_text.text = '0 clicks'
+        click_number_text.y = 15
+        click_time_text.text = '5 seconds'
+        click_time_text.y = 15
+        finishing_time = 5
 
 
 app.run()  # needed to run the program
